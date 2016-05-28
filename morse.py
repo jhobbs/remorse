@@ -72,7 +72,7 @@ def play_string(input_string):
         yield audiogen.silence(UNIT * 3)
 
 
-def generate_random_string(max_length, max_word_length):
+def generate_random_string(alphabet, max_length, max_word_length):
     string_length = random.randint(1, max_length)
 
     word_length = 0
@@ -90,16 +90,17 @@ def generate_random_string(max_length, max_word_length):
             word_length = 0
             continue
 
-        yield random.choice(MORSE_CHARACTERS.keys())
+        yield random.choice(alphabet)
         word_length += 1
 
 
-def get_random_string(max_length=30, max_word_length=5):
-    return ''.join(generate_random_string(max_length, max_word_length))
+def get_random_string(alphabet, max_length=30, max_word_length=5):
+    return ''.join(
+        generate_random_string(alphabet, max_length, max_word_length))
 
 
 def main():
-    message_string = get_random_string()
+    message_string = get_random_string(MORSE_CHARACTERS.keys())
     samples = itertools.chain(*play_string(message_string))
     audiogen.sampler.play(samples)
     print(message_string)
