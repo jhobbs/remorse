@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+import argparse
 import itertools
 import random
 import sys
@@ -94,13 +95,33 @@ def generate_random_string(alphabet, max_length, max_word_length):
         word_length += 1
 
 
-def get_random_string(alphabet, max_length=30, max_word_length=5):
+def get_random_string(alphabet, max_length, max_word_length):
     return ''.join(
         generate_random_string(alphabet, max_length, max_word_length))
 
 
+def get_argparser():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-w", "--max-word-length",
+        help="Maximum word length. Default is 5.",
+        default=5, type=int)
+    parser.add_argument("-l", "--max-length",
+        help="Maximum overall length. Default is 30.",
+        default=30, type=int)
+    parser.add_argument("-a", "--alphabet",
+        help="Alphabet for words. Default is all letters and numbers.",
+        default=MORSE_CHARACTERS.keys())
+    return parser
+
+
 def main():
-    message_string = get_random_string(MORSE_CHARACTERS.keys())
+    parser = get_argparser()
+    args = parser.parse_args()
+    message_string = get_random_string(
+        alphabet=args.alphabet,
+        max_length=args.max_length,
+        max_word_length=args.max_word_length)
+    play_list = play_string(message_string)
     samples = itertools.chain(*play_string(message_string))
     audiogen.sampler.play(samples)
     print(message_string)
