@@ -122,7 +122,7 @@ def main():
         max_length=args.max_length,
         max_word_length=args.max_word_length)
     play_list = play_string(message_string)
-    samples = itertools.chain(*play_string(message_string))
+    samples = itertools.chain(*play_list)
     audiogen.sampler.play(samples)
     print(message_string)
 
