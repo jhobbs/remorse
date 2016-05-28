@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import itertools
+import random
 import sys
 import audiogen
 
@@ -54,21 +55,55 @@ def timed_beep(frequency=440.0, seconds=0.25):
         yield sample
 
 
-def gen_character(character):
+def play_character(character):
     for i, beat in enumerate(MORSE_CHARACTERS[character]):
         if i > 0:
             yield(audiogen.silence(UNIT))
         yield(timed_beep(seconds=beat))
 
 
-def gen_string(input_string):
+def play_string(input_string):
     for character in input_string:
         if character == ' ':
             yield audiogen.silence(UNIT * 6)
             continue
-        for beat in gen_character(character):
+        for beat in play_character(character):
             yield beat
         yield audiogen.silence(UNIT * 3)
 
 
-audiogen.sampler.play(itertools.chain(*gen_string(sys.argv[1])))
+def generate_random_string(max_length, max_word_length):
+    string_length = random.randint(1, max_length)
+
+    word_length = 0
+    for i in range(0, string_length):
+        if word_length == max_word_length:
+            if i == max_length - 1:
+                return
+            yield ' '
+            word_length = 0
+            continue
+
+        if i > 0 and i < max_length - 1 and word_length > 0 and \
+            random.randint(0, max_word_length) == 0:
+            yield ' '
+            word_length = 0
+            continue
+
+        yield random.choice(MORSE_CHARACTERS.keys())
+        word_length += 1
+
+
+def get_random_string(max_length=30, max_word_length=5):
+    return ''.join(generate_random_string(max_length, max_word_length))
+
+
+def main():
+    message_string = get_random_string()
+    samples = itertools.chain(*play_string(message_string))
+    audiogen.sampler.play(samples)
+    print(message_string)
+
+
+if __name__ == '__main__':
+    main()
