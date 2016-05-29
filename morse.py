@@ -49,26 +49,26 @@ MORSE_CHARACTERS = {
 }
 
 
-def timed_beep(frequency=440.0, seconds=0.25):
+def timed_beep(frequency, seconds):
     for sample in audiogen.util.crop_with_fades(
             audiogen.tone(frequency), seconds=seconds):
         yield sample
 
 
-def play_character(character, unit_length):
+def play_character(character, unit_length, frequency):
     for i, beat in enumerate(MORSE_CHARACTERS[character]):
         if i > 0:
             yield(audiogen.silence(unit_length))
-        yield(timed_beep(seconds=(unit_length * beat)))
+        yield(timed_beep(frequency=frequency, seconds=(unit_length * beat)))
 
 
-def play_string(input_string, wpm):
+def play_string(input_string, wpm, frequency):
     unit_length = 60.0 / (wpm * 50.0)
     for character in input_string:
         if character == ' ':
             yield audiogen.silence(unit_length * 6)
             continue
-        for beat in play_character(character, unit_length):
+        for beat in play_character(character, unit_length, frequency):
             yield beat
         yield audiogen.silence(unit_length * 3)
 
@@ -114,6 +114,9 @@ def get_argparser():
     parser.add_argument("-w", "--wpm",
         help="Speed to play morse generate in WPM.",
         default=15, type=int)
+    parser.add_argument("-f", "--frequency",
+        help="Frequency of tone.",
+        default=750, type=float)
 
     return parser
 
@@ -125,7 +128,8 @@ def main():
         alphabet=args.alphabet,
         max_length=args.max_length,
         max_word_length=args.max_word_length)
-    play_list = play_string(message_string, wpm=args.wpm)
+    play_list = play_string(
+        message_string, wpm=args.wpm, frequency=args.frequency)
     samples = itertools.chain(*play_list)
     audiogen.sampler.play(samples)
     print(message_string)
