@@ -1,6 +1,6 @@
-# morsegen
-Simple python morse code generator
+# remorse
+remorse plays randomly generated morse code for you to copy by pen and
+paper.
 
-Generate you some morse code audio.
-
-Requires the 'audiogen' package from pip.
+You can control alphabet, speed, length, etc, run remorse --help for
+details.
