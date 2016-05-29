@@ -5,9 +5,8 @@ import random
 import sys
 import audiogen
 
-UNIT = 0.07 # Sounds close to 15 WPM.
-DIT = UNIT
-DAH = UNIT * 3
+DIT = 1
+DAH = 3
 
 
 MORSE_CHARACTERS = {
@@ -56,21 +55,22 @@ def timed_beep(frequency=440.0, seconds=0.25):
         yield sample
 
 
-def play_character(character):
+def play_character(character, unit_length):
     for i, beat in enumerate(MORSE_CHARACTERS[character]):
         if i > 0:
-            yield(audiogen.silence(UNIT))
-        yield(timed_beep(seconds=beat))
+            yield(audiogen.silence(unit_length))
+        yield(timed_beep(seconds=(unit_length * beat)))
 
 
-def play_string(input_string):
+def play_string(input_string, wpm):
+    unit_length = 60.0 / (wpm * 50.0)
     for character in input_string:
         if character == ' ':
-            yield audiogen.silence(UNIT * 6)
+            yield audiogen.silence(unit_length * 6)
             continue
-        for beat in play_character(character):
+        for beat in play_character(character, unit_length):
             yield beat
-        yield audiogen.silence(UNIT * 3)
+        yield audiogen.silence(unit_length * 3)
 
 
 def generate_random_string(alphabet, max_length, max_word_length):
@@ -102,7 +102,7 @@ def get_random_string(alphabet, max_length, max_word_length):
 
 def get_argparser():
     parser = argparse.ArgumentParser()
-    parser.add_argument("-w", "--max-word-length",
+    parser.add_argument("-m", "--max-word-length",
         help="Maximum word length. Default is 5.",
         default=5, type=int)
     parser.add_argument("-l", "--max-length",
@@ -111,6 +111,10 @@ def get_argparser():
     parser.add_argument("-a", "--alphabet",
         help="Alphabet for words. Default is all letters and numbers.",
         default=MORSE_CHARACTERS.keys())
+    parser.add_argument("-w", "--wpm",
+        help="Speed to play morse generate in WPM.",
+        default=15, type=int)
+
     return parser
 
 
@@ -121,7 +125,7 @@ def main():
         alphabet=args.alphabet,
         max_length=args.max_length,
         max_word_length=args.max_word_length)
-    play_list = play_string(message_string)
+    play_list = play_string(message_string, wpm=args.wpm)
     samples = itertools.chain(*play_list)
     audiogen.sampler.play(samples)
     print(message_string)
