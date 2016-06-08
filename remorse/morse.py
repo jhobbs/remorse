@@ -131,7 +131,13 @@ def main():
     play_list = play_string(
         message_string, wpm=args.wpm, frequency=args.frequency)
     samples = itertools.chain(*play_list)
-    audiogen.sampler.play(samples)
+    audiogen.silence(2)
+    try:
+        audiogen.sampler.play(samples)
+    except KeyboardInterrupt:
+        print("^C")
+        pass
+
     print(message_string)
 
 
