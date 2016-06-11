@@ -3,7 +3,8 @@ import argparse
 import itertools
 import random
 import sys
-import audiogen
+
+from remorse.wavegen import play, sine, silence
 
 DIT = 1
 DAH = 3
@@ -49,28 +50,22 @@ MORSE_CHARACTERS = {
 }
 
 
-def timed_beep(frequency, seconds):
-    for sample in audiogen.util.crop_with_fades(
-            audiogen.tone(frequency), seconds=seconds):
-        yield sample
-
-
 def play_character(character, unit_length, frequency):
     for i, beat in enumerate(MORSE_CHARACTERS[character]):
         if i > 0:
-            yield(audiogen.silence(unit_length))
-        yield(timed_beep(frequency=frequency, seconds=(unit_length * beat)))
+            yield(silence(unit_length))
+        yield(sine(frequency=frequency, length=(unit_length * beat)))
 
 
 def play_string(input_string, wpm, frequency):
     unit_length = 60.0 / (wpm * 50.0)
     for character in input_string:
         if character == ' ':
-            yield audiogen.silence(unit_length * 6)
+            yield silence(unit_length * 6)
             continue
         for beat in play_character(character, unit_length, frequency):
             yield beat
-        yield audiogen.silence(unit_length * 3)
+        yield silence(unit_length * 3)
 
 
 def generate_random_string(alphabet, max_length, max_word_length):
@@ -128,17 +123,15 @@ def main():
         alphabet=args.alphabet,
         max_length=args.max_length,
         max_word_length=args.max_word_length)
-    play_list = play_string(
-        message_string, wpm=args.wpm, frequency=args.frequency)
-    samples = itertools.chain(*play_list)
-    audiogen.silence(2)
+    play_list = ''.join(list(play_string(
+        message_string, wpm=args.wpm, frequency=args.frequency)))
     try:
-        audiogen.sampler.play(samples)
+        play(play_list)
     except KeyboardInterrupt:
         print("^C")
         pass
 
-    print(message_string)
+    print("%s [%d]" % (message_string, len(message_string)))
 
 
 if __name__ == '__main__':

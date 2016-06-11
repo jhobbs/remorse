@@ -8,5 +8,5 @@ setup(name='remorse',
       author_email='jason.hobbs@gmail.com',
       license='Apache License 2.0',
       packages=['remorse'],
-      install_requires=['audiogen', 'pyaudio'],
+      install_requires=['pyaudio'],
       scripts=['scripts/remorse'])
