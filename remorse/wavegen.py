@@ -6,8 +6,9 @@ BITRATE = 16000
 def sine(frequency, length):
     wave_data = ''
     number_of_frames = int(BITRATE * length)
+    factor = float(frequency) * (math.pi * 2) / BITRATE
     for x in xrange(number_of_frames):
-        wave_data += chr(int(math.sin(x/((BITRATE/frequency)/math.pi))*127+128))
+        wave_data += chr(int(math.sin(x * factor) * 127 + 128))
     return wave_data
 
 
