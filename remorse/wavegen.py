@@ -3,8 +3,9 @@ import math
 from pyaudio import PyAudio
 
 BITRATE = 16000
-FADE_LENGTH = 0.002
+FADE_LENGTH = 0.003
 FADE_FRAMES = int(BITRATE * FADE_LENGTH)
+MAX_AMPLITUDE = 127
 
 
 def sine(frequency, length):
@@ -15,12 +16,12 @@ def sine(frequency, length):
     Good reference on how simple digital sound generation works:
     http://www.cs.nmsu.edu/~rth/cs/computermusic/Simple%20sound%20generation.html
 
-    We use s_n = (v * sin(2*pi*f*n/sr)) + 128 where:
+    We use s_n = (a * sin(2*pi*f*n/sr)) + 128 where:
     - n is the sample number.
     - s_n is sample n.
     - f is frequency in hertz.
     - sr is the sample rate in samples per second.
-    - v is the volume in the range of 0 to 127.
+    - a is the amplitude in the range of 0 to 127.
 
     Adding 128 serves to center the samples at 128, which is silence in 8-bit
     unsigned PCM format.
@@ -30,13 +31,13 @@ def sine(frequency, length):
     factor = (float(frequency) * (math.pi * 2)) / BITRATE
     for n in xrange(number_of_frames):
         if n < FADE_FRAMES:
-            volume_factor = float(n) / FADE_FRAMES
+            amplitude_factor = float(n) / FADE_FRAMES
         elif number_of_frames - n < FADE_FRAMES:
-            volume_factor = float(number_of_frames - n) / FADE_FRAMES
+            amplitude_factor = float(number_of_frames - n) / FADE_FRAMES
         else:
-            volume_factor = 1
-        volume = 127 * volume_factor
-        zero_centered = int(math.sin(n * factor) * volume)
+            amplitude_factor = 1
+        amplitude = MAX_AMPLITUDE * amplitude_factor
+        zero_centered = int(math.sin(n * factor) * amplitude)
         wave_data += chr(zero_centered + 128)
     return wave_data
 
