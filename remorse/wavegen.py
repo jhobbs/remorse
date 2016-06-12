@@ -6,6 +6,7 @@ BITRATE = 16000
 FADE_LENGTH = 0.002
 FADE_FRAMES = int(BITRATE * FADE_LENGTH)
 
+
 def sine(frequency, length):
     """Generate a sine wave for use with pyaudio.
 
