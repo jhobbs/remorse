@@ -1,7 +1,7 @@
 from setuptools import setup
 
 setup(name='remorse',
-      version='0.3',
+      version='0.4',
       description='Morse code player',
       url='http://github.com/jhobbs/remorse',
       author='Jason Hobbs',
