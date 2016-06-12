@@ -66,6 +66,8 @@ def play_string(input_string, wpm, frequency):
         for beat in play_character(character, unit_length, frequency):
             yield beat
         yield silence(unit_length * 3)
+    # just to prevent abrupt ending
+    yield silence(unit_length * 6)
 
 
 def generate_random_string(alphabet, max_length, max_word_length):
