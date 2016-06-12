@@ -1,3 +1,4 @@
+import itertools
 import math
 from pyaudio import PyAudio
 
@@ -21,13 +22,7 @@ def silence(length):
 
 
 def play(wave_data):
-    framecount = len(wave_data)
-    restframes = framecount % BITRATE
-    for x in xrange(restframes):
-        wave_data += chr(128)
-
     chunk_size = BITRATE/10
-    chunks = (len(wave_data) / chunk_size)
 
     p = PyAudio()
     stream = p.open(format = p.get_format_from_width(1), 
@@ -35,10 +30,8 @@ def play(wave_data):
                 rate = BITRATE, 
                 output = True)
 
-    for x in range(chunks):
-        start = x * chunk_size
-        finish = start + chunk_size
-        stream.write(wave_data[start:finish])
+    for chunk in itertools.islice(wave_data, chunk_size):
+        stream.write(chunk)
 
     stream.stop_stream()
     stream.close()

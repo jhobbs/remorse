@@ -123,8 +123,8 @@ def main():
         alphabet=args.alphabet,
         max_length=args.max_length,
         max_word_length=args.max_word_length)
-    play_list = ''.join(list(play_string(
-        message_string, wpm=args.wpm, frequency=args.frequency)))
+    play_list = play_string(
+        message_string, wpm=args.wpm, frequency=args.frequency)
     try:
         play(play_list)
     except KeyboardInterrupt:
