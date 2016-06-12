@@ -3,13 +3,26 @@ import math
 from pyaudio import PyAudio
 
 BITRATE = 16000
+FADE_LENGTH = 0.002
+FADE_FRAMES = int(BITRATE * FADE_LENGTH)
 
 def sine(frequency, length):
+    """Generate a sine wave for use with pyaudio.
+
+    Uses linear fading at the beginning and end to avoid click noise.
+    """
     wave_data = ''
     number_of_frames = int(BITRATE * length)
     factor = float(frequency) * (math.pi * 2) / BITRATE
     for x in xrange(number_of_frames):
-        wave_data += chr(int(math.sin(x * factor) * 127 + 128))
+        if x < FADE_FRAMES:
+            volume_factor = float(x) / FADE_FRAMES
+        elif number_of_frames - x < FADE_FRAMES:
+            volume_factor = float(number_of_frames - x) / FADE_FRAMES
+        else:
+            volume_factor = 1
+        volume = 127 * volume_factor
+        wave_data += chr(int(math.sin(x * factor) * volume + 128))
     return wave_data
 
 
